@@ -3,17 +3,20 @@ pragma solidity ^0.8.7.0;
 
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3interface.sol";
 import "@chainlink/contracts/src/v0.6/vendor/SafeMathChainLink.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 //creating the lottery contract
-contract Lottery {
+contract Lottery is Ownable{
     using SafeMathChainLink for uint256;
     enum LOTTERY_STATE {OPEN, CLOSED, CALCULATING_WINNDER};
     LOTTERY_STATE public lotteryState;
     AggregatorV3Interface internal ethUsdPriceFeed;
-    uint256 usdEntryFee;
+    uint256 public usdEntryFee;
+    uint256 public randomness;
     address payable[] public players;
 
     constructor(address _ethUsdPriceFeed) public {
+
         ethUsdePriceFeed = AggregatorV3Interface(_ethUsdPriceFeed);
         usdEntryFee = 50;//$50
         lotteryState = LOTTER_STATE.CLOSED;
@@ -42,9 +45,12 @@ contract Lottery {
         return uint256(price);
     } 
 
-
-    function startLotter() public {
-
+    //onlyOwner - only owner of the contract can call this function
+    // use openzeplin's onlyOwner
+    function startLottery() public onlyOwner{
+        require(lotteryState == LOTTERY_STATE.CLOSED, "Can't start a new lottery");
+        lotteryState = LOTTERY_STATE.OPEN;
+        randomness = 0;
     }
 
     function endLottery() public{
