@@ -17,6 +17,7 @@ contract Lottery is VRFConsumerBase, Ownable{
     uint256 public randomness;
     uint256 public fee;
     bytes32 public keyHash;
+    event RequestRandomness(bytes32 requestId);
 
     //_link = link address
     constructor(address _ethUsdPriceFeed, address _vrfCoordinator, address _link, bytes32 _keyHash)
@@ -72,18 +73,19 @@ contract Lottery is VRFConsumerBase, Ownable{
     function pickWinner(uint256 userProvideSeed) private returns(bytes32){
         require(lotteryState == LOTTERY_STATE.CALCULATING_WINNER, "Needs to be calculating the winner");
         bytes32 requestId = requestRandomness(KeyHash, fee, userProvidedSeed);
+        emit RequestedRandomness(requestId);
     }
 
     //request randomness
     function fulfilRandomness(bytes32 requestId, uint256 randomness) internal override{
         require(randomness > 0, "random number not found");
-        uint256 index = dandomness % players.length;\
+        uint256 index = randomness % players.length;
         //send all the eth in this contract to the winner
         players[index].transfer(address(this).balance);
         players = new address payable[](0);
         lotteryState = LOTTERY_STATE.CLOSED;
         randomness = randomness;
-        
+
 
     }
 }
