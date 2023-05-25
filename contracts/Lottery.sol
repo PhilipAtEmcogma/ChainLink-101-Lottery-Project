@@ -13,6 +13,7 @@ contract Lottery is VRFConsumerBase, Ownable{
     LOTTERY_STATE public lotteryState;
     AggregatorV3Interface internal ethUsdPriceFeed;
     uint256 public usdEntryFee;
+    address public recentWinner;
     address payable[] public players;
     uint256 public randomness;
     uint256 public fee;
@@ -82,10 +83,9 @@ contract Lottery is VRFConsumerBase, Ownable{
         uint256 index = randomness % players.length;
         //send all the eth in this contract to the winner
         players[index].transfer(address(this).balance);
+        recentWinner = players[index]; //use to identify the most recent winner
         players = new address payable[](0);
         lotteryState = LOTTERY_STATE.CLOSED;
         randomness = randomness;
-
-
     }
 }
