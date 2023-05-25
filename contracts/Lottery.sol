@@ -75,7 +75,15 @@ contract Lottery is VRFConsumerBase, Ownable{
     }
 
     //request randomness
-    function fulfilRandomness(){
+    function fulfilRandomness(bytes32 requestId, uint256 randomness) internal override{
+        require(randomness > 0, "random number not found");
+        uint256 index = dandomness % players.length;\
+        //send all the eth in this contract to the winner
+        players[index].transfer(address(this).balance);
+        players = new address payable[](0);
+        lotteryState = LOTTERY_STATE.CLOSED;
+        randomness = randomness;
         
+
     }
 }
